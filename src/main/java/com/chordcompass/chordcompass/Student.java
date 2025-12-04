@@ -20,7 +20,7 @@ public class Student {
     @Column(length = 15)
     private String phone;
 
-    @Column(name = "created_at", updatable = false)
+    @Column(name = "created_at", updatable = false, insertable = false)
     private LocalDateTime createdAt;
 
     // Default constructor (required by JPA)

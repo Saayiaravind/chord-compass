@@ -13,18 +13,18 @@ import java.util.Optional;
 public class StudentController {
 
     @Autowired
-    private StudentRepository studentRepository;
+    private StudentService studentService;  // Changed: Now inject Service instead of Repository
 
-     // GET /students - Get all students
+    // GET /students - Get all students
     @GetMapping
     public List<Student> getAllStudents() {
-        return studentRepository.findAll();
+        return studentService.getAllStudents();  // Changed: Call service instead of repository
     }
 
-     // GET /students/{id} - Get student by ID
+    // GET /students/{id} - Get student by ID
     @GetMapping("/{id}")
     public ResponseEntity<Student> getStudentById(@PathVariable Integer id) {
-        Optional<Student> student = studentRepository.findById(id);
+        Optional<Student> student = studentService.getStudentById(id);
         
         if (student.isPresent()) {
             return ResponseEntity.ok(student.get());
@@ -35,41 +35,35 @@ public class StudentController {
 
     // POST /students - Create new student
     @PostMapping
-    public ResponseEntity<Student> createStudent(@RequestBody Student student) {
+    public ResponseEntity<?> createStudent(@RequestBody Student student) {
         try {
-            Student savedStudent = studentRepository.save(student);
+            Student savedStudent = studentService.createStudent(student);  // Service handles validation
             return ResponseEntity.status(HttpStatus.CREATED).body(savedStudent);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        } catch (RuntimeException e) {
+            // Return validation error message to client
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 
     // PUT /students/{id} - Update student
     @PutMapping("/{id}")
-    public ResponseEntity<Student> updateStudent(@PathVariable Integer id, @RequestBody Student studentDetails) {
-        Optional<Student> studentOptional = studentRepository.findById(id);
-        
-        if (studentOptional.isPresent()) {
-            Student student = studentOptional.get();
-            student.setName(studentDetails.getName());
-            student.setEmail(studentDetails.getEmail());
-            student.setPhone(studentDetails.getPhone());
-            
-            Student updatedStudent = studentRepository.save(student);
+    public ResponseEntity<?> updateStudent(@PathVariable Integer id, @RequestBody Student studentDetails) {
+        try {
+            Student updatedStudent = studentService.updateStudent(id, studentDetails);
             return ResponseEntity.ok(updatedStudent);
-        } else {
-            return ResponseEntity.notFound().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 
     // DELETE /students/{id} - Delete student
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteStudent(@PathVariable Integer id) {
-        if (studentRepository.existsById(id)) {
-            studentRepository.deleteById(id);
+    public ResponseEntity<?> deleteStudent(@PathVariable Integer id) {
+        try {
+            studentService.deleteStudent(id);
             return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.notFound().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 }
