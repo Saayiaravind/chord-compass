@@ -3,6 +3,7 @@ package com.chordcompass.chordcompass;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,12 +18,14 @@ public class StudentController {
 
     // GET /students - Get all students
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public List<Student> getAllStudents() {
         return studentService.getAllStudents();  // Changed: Call service instead of repository
     }
 
     // GET /students/{id} - Get student by ID
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Student> getStudentById(@PathVariable Integer id) {
         Optional<Student> student = studentService.getStudentById(id);
         
@@ -35,6 +38,7 @@ public class StudentController {
 
     // POST /students - Create new student
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> createStudent(@RequestBody Student student) {
         try {
             Student savedStudent = studentService.createStudent(student);  // Service handles validation
@@ -47,6 +51,7 @@ public class StudentController {
 
     // PUT /students/{id} - Update student
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> updateStudent(@PathVariable Integer id, @RequestBody Student studentDetails) {
         try {
             Student updatedStudent = studentService.updateStudent(id, studentDetails);
@@ -58,6 +63,7 @@ public class StudentController {
 
     // DELETE /students/{id} - Delete student
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deleteStudent(@PathVariable Integer id) {
         try {
             studentService.deleteStudent(id);
