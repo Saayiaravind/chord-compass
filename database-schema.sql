@@ -6,6 +6,16 @@ DROP TABLE IF EXISTS schedules CASCADE;
 DROP TABLE IF EXISTS student_enrollments CASCADE;
 DROP TABLE IF EXISTS courses CASCADE;
 DROP TABLE IF EXISTS students CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
+
+-- Users table (authentication)
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    role VARCHAR(20) NOT NULL CHECK (role IN ('ADMIN', 'STUDENT')),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
 -- Students table
 CREATE TABLE students (
@@ -13,6 +23,7 @@ CREATE TABLE students (
     name VARCHAR(100) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     phone VARCHAR(15),
+    user_id INTEGER UNIQUE REFERENCES users(id) ON DELETE SET NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -95,6 +106,7 @@ CREATE INDEX idx_enrollments_student ON student_enrollments(student_id);
 CREATE INDEX idx_enrollments_course ON student_enrollments(course_id);
 
 -- Comments for documentation
+COMMENT ON TABLE users IS 'User accounts for authentication (ADMIN or STUDENT roles)';
 COMMENT ON TABLE students IS 'Students enrolled in Chord Compass academy';
 COMMENT ON TABLE courses IS 'Available courses (Piano, Vocals, Keyboard, etc.)';
 COMMENT ON TABLE student_enrollments IS 'Student enrollment records with personalized pricing plans';
@@ -107,6 +119,14 @@ COMMENT ON COLUMN schedules.status IS 'Workflow: SCHEDULED → NOTES_PENDING (af
 -- ============================================
 -- SAMPLE DATA FOR TESTING
 -- ============================================
+
+-- Insert users (passwords are BCrypt hashed)
+-- admin@chordcompass.com / admin123
+-- student@chordcompass.com / student123
+INSERT INTO users (email, password, role)
+VALUES
+('admin@chordcompass.com', '$2a$10$N9qo8uLOickgx2ZMRZoMye.IjyZH/k7H9GmHWC/H.sKfPqW1.YVdS', 'ADMIN'),
+('student@chordcompass.com', '$2a$10$fBgYXOJQRJdqLCE4hHhZau9u7TJFwVOoWJ5OQyA0pJLHZBOUZKp3G', 'STUDENT');
 
 -- Insert sample students
 INSERT INTO students (name, email, phone)
