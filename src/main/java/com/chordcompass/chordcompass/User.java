@@ -3,6 +3,8 @@ package com.chordcompass.chordcompass;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "users")
 public class User {
@@ -22,6 +24,10 @@ public class User {
     
     @Column(name = "created_at", updatable = false, insertable = false)
     private LocalDateTime createdAt;
+
+    @OneToOne(mappedBy = "user")
+    @JsonIgnore
+    private Student student;
     
     // Default constructor (required by JPA)
     public User() {
@@ -43,6 +49,10 @@ public class User {
     
     public String getEmail() {
         return email;
+    }
+
+    public Student getStudent() {
+        return student;
     }
     
     public void setEmail(String email) {
