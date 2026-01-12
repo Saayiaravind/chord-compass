@@ -31,3 +31,14 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Node.js / React
+node_modules/
+frontend/node_modules/
+package-lock.json
+package.json
+frontend/dist/
+*.log
+npm-debug.log*
+.env
+.env.local
