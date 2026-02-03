@@ -1,17 +1,23 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
-function StudentList() {
+function StudentList({ token }) {
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    // Only fetch if token exists
+    if (!token) {
+      setLoading(false);
+      return;
+    }
+
     // Fetch students from backend when component loads
     const fetchStudents = async () => {
       try {
-        const token = 'eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQURNSU4iLCJzdWIiOiJhZG1pbkBjaG9yZGNvbXBhc3MuY29tIiwiaWF0IjoxNzY3ODYwOTQ0LCJleHAiOjE3Njc5NDczNDR9.ovg8g86nBNFhZayEQL318nTmmUD9b4SzCde8mqw589c'; // We'll get a real token later
-        const response = await axios.get('http://localhost:8081/students', {
+        //const token = 'eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQURNSU4iLCJzdWIiOiJhZG1pbkBjaG9yZGNvbXBhc3MuY29tIiwiaWF0IjoxNzY3ODYwOTQ0LCJleHAiOjE3Njc5NDczNDR9.ovg8g86nBNFhZayEQL318nTmmUD9b4SzCde8mqw589c'; // We'll get a real token later
+        const response = await axios.get('http://localhost:8082/students', {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -25,7 +31,7 @@ function StudentList() {
     };
 
     fetchStudents();
-  }, []); // Empty array means run once when component mounts
+  }, [token]); // Empty array means run once when component mounts
 
   if (loading) return <div>Loading students...</div>;
   if (error) return <div>Error: {error}</div>;
