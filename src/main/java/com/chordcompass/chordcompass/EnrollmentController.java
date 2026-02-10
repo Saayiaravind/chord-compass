@@ -1,5 +1,6 @@
 package com.chordcompass.chordcompass;
 
+import com.chordcompass.chordcompass.dto.EnrollmentResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -17,14 +18,18 @@ public class EnrollmentController {
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'INSTRUCTOR')")
-    public ResponseEntity<List<StudentEnrollment>> getAllEnrollments() {
-        return ResponseEntity.ok(enrollmentService.getAllEnrollments());
+    public ResponseEntity<List<EnrollmentResponse>> getAllEnrollments() {
+        List<EnrollmentResponse> responses = enrollmentService.getAllEnrollments()
+                .stream()
+                .map(EnrollmentResponse::fromEntity)
+                .toList();
+        return ResponseEntity.ok(responses);
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'INSTRUCTOR', 'STUDENT')")
-    public ResponseEntity<StudentEnrollment> getEnrollmentById(@PathVariable Integer id) {
-        return ResponseEntity.ok(enrollmentService.getEnrollmentById(id));
+    public ResponseEntity<EnrollmentResponse> getEnrollmentById(@PathVariable Integer id) {
+        return ResponseEntity.ok(EnrollmentResponse.fromEntity(enrollmentService.getEnrollmentById(id)));
     }
 
     @PostMapping

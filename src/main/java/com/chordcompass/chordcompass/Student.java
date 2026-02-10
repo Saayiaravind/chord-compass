@@ -32,6 +32,9 @@ public class Student {
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<StudentEnrollment> enrollments = new ArrayList<>();
 
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Video> videos = new ArrayList<>();
+
     // Default constructor (required by JPA)
     public Student() {
     }
@@ -66,6 +69,10 @@ public class Student {
 
     public List<StudentEnrollment> getEnrollments() {
         return enrollments;
+    }
+
+    public List<Video> getVideos() {
+        return videos;
     }
 
     public User getUser() {

@@ -2,6 +2,7 @@
 -- Created: 2025-01-XX
 
 -- Drop existing tables (for clean reinstall)
+DROP TABLE IF EXISTS videos CASCADE;
 DROP TABLE IF EXISTS schedules CASCADE;
 DROP TABLE IF EXISTS student_enrollments CASCADE;
 DROP TABLE IF EXISTS courses CASCADE;
@@ -98,7 +99,19 @@ CREATE TABLE schedules (
     completed_at TIMESTAMP
 );
 
+-- Videos table (YouTube videos assigned to students)
+CREATE TABLE videos (
+    id SERIAL PRIMARY KEY,
+    student_id INTEGER NOT NULL REFERENCES students(id) ON DELETE CASCADE,
+    title VARCHAR(200) NOT NULL,
+    youtube_url VARCHAR(500) NOT NULL,
+    description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Indexes for performance
+CREATE INDEX idx_videos_student ON videos(student_id);
 CREATE INDEX idx_schedules_enrollment ON schedules(enrollment_id);
 CREATE INDEX idx_schedules_date ON schedules(scheduled_date);
 CREATE INDEX idx_schedules_status ON schedules(status);
@@ -111,6 +124,8 @@ COMMENT ON TABLE students IS 'Students enrolled in Chord Compass academy';
 COMMENT ON TABLE courses IS 'Available courses (Piano, Vocals, Keyboard, etc.)';
 COMMENT ON TABLE student_enrollments IS 'Student enrollment records with personalized pricing plans';
 COMMENT ON TABLE schedules IS 'Individual class sessions with attendance and notes';
+COMMENT ON TABLE videos IS 'YouTube videos assigned by admin to individual students';
+COMMENT ON COLUMN videos.youtube_url IS 'Unlisted YouTube URL - video ID extracted on frontend for embedding';
 
 COMMENT ON COLUMN student_enrollments.payment_plan IS 'FIXED_MONTHLY: Monthly subscription, CLUSTER: Prepaid session packs, PAY_PER_SESSION: Pay after each month';
 COMMENT ON COLUMN student_enrollments.price_amount IS 'For FIXED: monthly fee, For CLUSTER: total pack price, For PAY_PER_SESSION: price per session';
@@ -216,8 +231,17 @@ VALUES
 
 (4, '2025-01-17', '14:00:00', 45, 'https://meet.google.com/ananya-hybrid-wed', 'SCHEDULED', NULL, NULL, NULL, NULL);
 
+-- Insert sample videos (unlisted YouTube links assigned to students)
+INSERT INTO videos (student_id, title, youtube_url, description)
+VALUES
+(1, 'C Major Scale Tutorial', 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', 'Practice the C major scale with proper fingering technique'),
+(1, 'Chord Progressions I-IV-V-I', 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', 'Review of chord progression patterns covered in class'),
+(2, 'Sarali Varisai Patterns 1-7', 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', 'Practice along with these sarali varisai exercises'),
+(3, 'Tum Hi Ho - Intro Section', 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', 'Slow breakdown of the intro section for practice');
+
 -- Verification queries (optional - comment out in production)
 -- SELECT * FROM students;
 -- SELECT * FROM courses;
 -- SELECT * FROM student_enrollments;
 -- SELECT * FROM schedules ORDER BY scheduled_date;
+-- SELECT * FROM videos;

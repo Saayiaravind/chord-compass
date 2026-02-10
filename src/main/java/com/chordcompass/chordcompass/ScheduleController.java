@@ -1,5 +1,6 @@
 package com.chordcompass.chordcompass;
 
+import com.chordcompass.chordcompass.dto.ScheduleResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -16,14 +17,17 @@ public class ScheduleController {
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'INSTRUCTOR', 'STUDENT')")
-    public List < Schedule > getAllSchedules() {
-        return scheduleService.getAllSchedules();
+    public List<ScheduleResponse> getAllSchedules() {
+        return scheduleService.getAllSchedules()
+                .stream()
+                .map(ScheduleResponse::fromEntity)
+                .toList();
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'INSTRUCTOR', 'STUDENT')")
-    public ResponseEntity < Schedule > getScheduleById(@PathVariable Integer id) {
-        return ResponseEntity.ok(scheduleService.getScheduleById(id));
+    public ResponseEntity<ScheduleResponse> getScheduleById(@PathVariable Integer id) {
+        return ResponseEntity.ok(ScheduleResponse.fromEntity(scheduleService.getScheduleById(id)));
     }
 
     @PutMapping("/{id}")
